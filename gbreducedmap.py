@@ -196,7 +196,6 @@ def define_obs(flist, pixelinfo=None):
 
     for i, fn in enumerate(flist): 
         ra, dec, mjd, signal, flag = read_fits(fn)
-        dec = dec * 2
 
         flag = np.array(np.logical_not(flag), dtype=int)
 
@@ -209,7 +208,17 @@ def define_obs(flist, pixelinfo=None):
 
         if d == 'GB03':
             pixelinfo_d = pixelinfo[pixelinfo['mod']==1]
+            if int(p) == 10:
+                p = 4
+            elif int(p) == 17:
+                p = 3
+            elif int(p) == 3:
+                p = 2
+            elif int(p) == 25:
+                p = 1
+
             pixelinfo_dp = pixelinfo_d[pixelinfo_d['mod_pix']==int(p)]
+
             if len(pixelinfo_dp) == 0:
                 pixelinfo_dp = pixelinfo_d[pixelinfo_d['mod_pix']==(int(p)%4+1)]
             
