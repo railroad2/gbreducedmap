@@ -284,6 +284,31 @@ def phase2temp(phase):
     return temp 
 
 
+def simple_binning(fname, nside=1024):
+    ra, dec, mjd, signal, flag = read_fits(fname)
+
+    dec_tmp = dec - gblat
+    dec_tmp *= 2
+    dec = dec_tmp + gblat
+
+    pixs = hp.ang2pix(nside, ra, dec, lonlat=True)
+
+    m = np.zeros(12*nside*nside)
+    hm = np.zeros(12*nside*nside)
+
+    for i in range(len(pixs)):
+        m[pixs[i]] += -1*signal[i]
+        hm[pixs[i]] += 1
+
+    hm_tmp = hm.copy()
+    hm_tmp[hm==0] = 1
+
+    m /= hm_tmp
+    m[m==0] = hp.UNSEEN
+    
+    return m
+
+
 def make_map(flist):
     data = toast.Data(comm)
     
@@ -316,16 +341,21 @@ def main():
     
     return 
 
+
 def test():
     flist = sys.argv[1]
 
-    test_psi_tricks(flist)
+    #test_psi_tricks(flist)
+    m = simple_binning(flist)
+    hp.mollview(m, xsize=3000)
+    plt.show()
     
     return 
 
+
 if __name__=="__main__":
-    main()
-    #test()
+    #main()
+    test()
 
     
 
